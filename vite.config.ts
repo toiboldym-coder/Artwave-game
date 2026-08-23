@@ -3,8 +3,10 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+const base = process.env.VITE_BASE || "/";
+
 export default defineConfig({
-  base: "/Artwave-game/",
+  base,
   plugins: [
     react(),
     tailwindcss(),
@@ -19,7 +21,7 @@ export default defineConfig({
         background_color: "#140b2e",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/Artwave-game/",
+        start_url: base,
         icons: [
           {
             src: "icons/icon.svg",

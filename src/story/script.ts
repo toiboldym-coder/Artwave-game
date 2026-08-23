@@ -1,3 +1,4 @@
+import { asset } from "../asset";
 import type { HeroId } from "../game/types";
 
 export interface Line {
@@ -458,7 +459,7 @@ export const POLAROIDS: Polaroid[] = [
     afterLevel: 3,
     title: "Айдар. Зал",
     caption: "Красные кресла, луч уже в голове. Это не селфи — это рекогносцировка.",
-    src: "/portraits/aidar-hall.jpg",
+    src: asset("portraits/aidar-hall.jpg"),
     objectPos: "50% 18%",
   },
   {
@@ -466,7 +467,7 @@ export const POLAROIDS: Polaroid[] = [
     afterLevel: 5,
     title: "Айдар. После выезда",
     caption: "Первый нормальный выезд закрыт. Можно сесть на ступени и сделать вид, что это отпуск.",
-    src: "/portraits/aidar-steps.jpg",
+    src: asset("portraits/aidar-steps.jpg"),
     objectPos: "50% 28%",
   },
   {
@@ -474,7 +475,7 @@ export const POLAROIDS: Polaroid[] = [
     afterLevel: 10,
     title: "Адиль",
     caption: "Корпоратив закрыт. Стикер с котиком идёт в бухгалтерию.",
-    src: "/portraits/adil.jpg",
+    src: asset("portraits/adil.jpg"),
     objectPos: "50% 16%",
   },
   {
@@ -482,7 +483,7 @@ export const POLAROIDS: Polaroid[] = [
     afterLevel: 13,
     title: "Артём. Выходной",
     caption: "Кабинеты подождут. Мопс уже собрал кворум.",
-    src: "/portraits/artem-pug.jpg",
+    src: asset("portraits/artem-pug.jpg"),
     objectPos: "50% 28%",
   },
   {
@@ -490,7 +491,7 @@ export const POLAROIDS: Polaroid[] = [
     afterLevel: 15,
     title: "Артём. Большая волна",
     caption: "Если LED не взлетит — хотя бы скафандр выглядит серьёзно.",
-    src: "/portraits/artem-suit.jpg",
+    src: asset("portraits/artem-suit.jpg"),
     objectPos: "50% 42%",
   },
 ];

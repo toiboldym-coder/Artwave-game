@@ -1,3 +1,4 @@
+import { asset } from "../asset";
 import type { Color, HeroId } from "../game/types";
 
 export interface Hero {
@@ -29,8 +30,8 @@ export const HEROES: Hero[] = [
     accent: "amber",
     accentHex: "#FFC531",
     instagram: "ihsan_aidar",
-    photo: "/portraits/aidar-hall.jpg",
-    frames: ["/portraits/aidar-hall.jpg", "/portraits/aidar-steps.jpg"],
+    photo: asset("portraits/aidar-hall.jpg"),
+    frames: [asset("portraits/aidar-hall.jpg"), asset("portraits/aidar-steps.jpg")],
     objectPos: "50% 18%",
     emojiVibe: "художник с диммером",
   },
@@ -45,8 +46,8 @@ export const HEROES: Hero[] = [
     accent: "red",
     accentHex: "#FF4E6A",
     instagram: "adil_temerzhanov",
-    photo: "/portraits/adil.jpg",
-    frames: ["/portraits/adil.jpg", "/portraits/adil-profile.jpg"],
+    photo: asset("portraits/adil.jpg"),
+    frames: [asset("portraits/adil.jpg"), asset("portraits/adil-profile.jpg")],
     objectPos: "50% 16%",
     emojiVibe: "переговорщик на созвоне",
   },
@@ -61,8 +62,8 @@ export const HEROES: Hero[] = [
     accent: "teal",
     accentHex: "#24D0C4",
     instagram: "_babybelial_",
-    photo: "/portraits/artem-pug.jpg",
-    frames: ["/portraits/artem-pug.jpg", "/portraits/artem-suit.jpg"],
+    photo: asset("portraits/artem-pug.jpg"),
+    frames: [asset("portraits/artem-pug.jpg"), asset("portraits/artem-suit.jpg")],
     objectPos: "50% 22%",
     emojiVibe: "повелитель кабинетов",
   },
