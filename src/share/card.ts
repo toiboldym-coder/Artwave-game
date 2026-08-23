@@ -117,7 +117,6 @@ export async function makeStoryCard(opts: {
 
   const photo = await loadImage(opts.hero.photo);
   const size = 420;
-  const px = (W - size) / 2;
   const py = 320;
   ctx.save();
   ctx.beginPath();

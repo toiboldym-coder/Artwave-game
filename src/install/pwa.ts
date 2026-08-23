@@ -31,7 +31,9 @@ export function canPromptInstall() {
 
 export function subscribeInstall(fn: () => void) {
   listeners.add(fn);
-  return () => listeners.delete(fn);
+  return () => {
+    listeners.delete(fn);
+  };
 }
 
 export async function promptInstall() {
