@@ -21,7 +21,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          VITE_BASE: /Artwave-game/
+          VITE_BASE: /
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
