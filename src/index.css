@@ -216,21 +216,37 @@ button {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 18px;
+  height: 22px;
   border-radius: 999px;
   background: linear-gradient(90deg, #24d0c4, #7ee04a, #ffc531, #6d7bff);
   box-shadow: inset 0 2px 4px rgba(29, 42, 58, 0.18);
+  cursor: pointer;
+  touch-action: none;
 }
 .aw-slider input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 28px;
   height: 28px;
+  margin-top: -3px;
   border-radius: 50%;
   background: #fffdf6;
   border: 3px solid #1d2a3a;
   box-shadow: 0 4px 0 rgba(29, 42, 58, 0.15);
-  cursor: pointer;
+  cursor: grab;
+}
+.aw-slider input::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fffdf6;
+  border: 3px solid #1d2a3a;
+  box-shadow: 0 4px 0 rgba(29, 42, 58, 0.15);
+  cursor: grab;
+}
+.aw-slider input::-webkit-slider-runnable-track {
+  height: 22px;
+  border-radius: 999px;
 }
 .aw-chip {
   --acc: #ffc531;

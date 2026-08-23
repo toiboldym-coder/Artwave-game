@@ -2,6 +2,8 @@ import { asset } from "../asset";
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
+let musicGain: GainNode | null = null;
+let bedNode: MediaElementAudioSourceNode | null = null;
 let noiseBuf: AudioBuffer | null = null;
 let bed: HTMLAudioElement | null = null;
 let hiddenBound = false;
@@ -10,8 +12,11 @@ const getCtx = () => {
   if (!ctx) {
     ctx = new AudioContext();
     master = ctx.createGain();
+    musicGain = ctx.createGain();
     applySfx();
+    applyMusic();
     master.connect(ctx.destination);
+    musicGain.connect(ctx.destination);
   }
   return ctx;
 };
@@ -44,12 +49,37 @@ const persistPrefs = () => {
   localStorage.setItem(PREF_KEY, JSON.stringify({ music: musicVol, sfx: sfxVol }));
 };
 
+const MUSIC_MAX = 0.78;
+const SFX_MAX = 0.28;
+
 const applyMusic = () => {
-  if (bed) bed.volume = musicVol * 0.46;
+  const vol = musicVol * MUSIC_MAX;
+  if (bed && !bedNode) bed.volume = vol;
+  if (bed && bedNode) bed.volume = 1;
+  if (musicGain && ctx) musicGain.gain.setTargetAtTime(vol, ctx.currentTime, 0.02);
 };
 
 const applySfx = () => {
-  if (master) master.gain.value = 0.04 + sfxVol * 0.22;
+  if (master && ctx) master.gain.setTargetAtTime(sfxVol * SFX_MAX, ctx.currentTime, 0.02);
+  else if (master) master.gain.value = sfxVol * SFX_MAX;
+};
+
+const wireBed = (el: HTMLAudioElement) => {
+  if (bedNode) return;
+  try {
+    const c = getCtx();
+    el.crossOrigin = "anonymous";
+    el.volume = 1;
+    bedNode = c.createMediaElementSource(el);
+    if (!musicGain) {
+      musicGain = c.createGain();
+      musicGain.connect(c.destination);
+    }
+    bedNode.connect(musicGain);
+    applyMusic();
+  } catch {
+    applyMusic();
+  }
 };
 
 const loadPrefs = () => {
@@ -73,10 +103,12 @@ export function getAudioPrefs() {
 export function setMusicVolume(value: number) {
   musicVol = clamp(value);
   persistPrefs();
+  startBed();
   applyMusic();
 }
 
 export function setSfxVolume(value: number) {
+  unlockAudio();
   sfxVol = clamp(value);
   persistPrefs();
   applySfx();
@@ -190,8 +222,11 @@ let bedIndex = 0;
 
 const getBed = () => {
   if (!bed) {
-    bed = new Audio(BEDS[0]);
+    bed = new Audio();
+    bed.crossOrigin = "anonymous";
     bed.preload = "auto";
+    bed.src = BEDS[0];
+    wireBed(bed);
     applyMusic();
     bed.addEventListener("ended", () => {
       bedIndex = (bedIndex + 1) % BEDS.length;

@@ -1,6 +1,12 @@
 import { GearSix, SpeakerHigh, MusicNotes } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { getAudioPrefs, setMusicVolume, setSfxVolume, sfx } from "../audio/sfx";
+import {
+  getAudioPrefs,
+  setMusicVolume,
+  setSfxVolume,
+  sfx,
+  unlockAudio,
+} from "../audio/sfx";
 
 export function SettingsButton({ onOpen }: { onOpen: () => void }) {
   return (
@@ -44,9 +50,11 @@ export function SettingsSheet({
             type="range"
             min="0"
             max="100"
+            step="1"
             value={Math.round(music * 100)}
-            onChange={(e) => {
-              const next = Number(e.target.value) / 100;
+            onPointerDown={unlockAudio}
+            onInput={(e) => {
+              const next = Number((e.target as HTMLInputElement).value) / 100;
               setMusic(next);
               setMusicVolume(next);
             }}
@@ -61,9 +69,11 @@ export function SettingsSheet({
             type="range"
             min="0"
             max="100"
+            step="1"
             value={Math.round(game * 100)}
-            onChange={(e) => {
-              const next = Number(e.target.value) / 100;
+            onPointerDown={unlockAudio}
+            onInput={(e) => {
+              const next = Number((e.target as HTMLInputElement).value) / 100;
               setGame(next);
               setSfxVolume(next);
               sfx.tap();
