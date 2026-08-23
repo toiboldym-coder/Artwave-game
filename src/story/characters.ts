@@ -1,5 +1,5 @@
 import { asset } from "../asset";
-import type { Color, HeroId } from "../game/types";
+import type { Color, HeroId, LevelKind } from "../game/types";
 
 export interface Hero {
   id: HeroId;
@@ -73,3 +73,22 @@ export const HEROES: Hero[] = [
 ];
 
 export const heroById = (id: HeroId) => HEROES.find((h) => h.id === id)!;
+
+export function boosterHintFor(id: HeroId, kind: LevelKind) {
+  if (id === "aidar") {
+    if (kind === "ride") return "Ямы вспыхнут на три секунды";
+    if (kind === "cue") return "Следующий луч сам попадёт";
+    if (kind === "wall") return "Нижний ряд соберётся сам";
+    return "Ракета сносит целый ряд";
+  }
+  if (id === "adil") {
+    if (kind === "ride") return "+7 секунд в договоре";
+    if (kind === "cue") return "Один промах спишем со сметы";
+    if (kind === "wall") return "Клиент подождёт автосброс";
+    return "+5 ходов из воздуха";
+  }
+  if (kind === "ride") return "Кабели сами в кузов";
+  if (kind === "cue") return "Снять все лучи в одной колонке";
+  if (kind === "wall") return "Кабинет встанет куда надо";
+  return "Дискошар сносит целый цвет";
+}

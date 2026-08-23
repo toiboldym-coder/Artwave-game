@@ -1,5 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import type { Blast, ClearedCell } from "../game/blast";
 import type { Grid } from "../game/types";
 import { COLOR_META } from "../game/types";
@@ -52,41 +51,32 @@ export function BlastBoard({
 
   const drag = useRef<{ r: number; c: number; x: number; y: number } | null>(null);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [beams, setBeams] = useState<{ nonce: number; blasts: Blast[] }>({
-    nonce: 0,
-    blasts: [],
-  });
+  const [beams, setBeams] = useState<Blast[]>([]);
   const [shake, setShake] = useState(false);
 
   useEffect(() => {
     if (!effect || cell === 0) return;
-    const sample = effect.cleared.slice(0, impact >= 3 ? 28 : 18);
-    const bits = impact >= 3 ? 4 : 3;
-    const next: Particle[] = [];
-    sample.forEach((cc, idx) => {
-      const cx = cc.c * cell + cell / 2;
-      const cy = cc.r * cell + cell / 2;
-      for (let i = 0; i < bits; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const dist = cell * (0.55 + Math.random() * 1.1);
-        next.push({
-          id: `${effect.nonce}-${idx}-${i}`,
-          x: cx,
-          y: cy,
-          dx: Math.cos(ang) * dist,
-          dy: Math.sin(ang) * dist - cell * 0.35,
-          color: COLOR_META[cc.color].glow,
-        });
-      }
+    const sample = effect.cleared.slice(0, 8);
+    const next: Particle[] = sample.map((cc, idx) => {
+      const ang = Math.random() * Math.PI * 2;
+      const dist = cell * 0.7;
+      return {
+        id: `${effect.nonce}-${idx}`,
+        x: cc.c * cell + cell / 2,
+        y: cc.r * cell + cell / 2,
+        dx: Math.cos(ang) * dist,
+        dy: Math.sin(ang) * dist - cell * 0.25,
+        color: COLOR_META[cc.color].glow,
+      };
     });
     setParticles(next);
-    setBeams({ nonce: effect.nonce, blasts: effect.blasts });
+    setBeams(effect.blasts);
     setShake(true);
-    const punch = window.setTimeout(() => setShake(false), impact >= 3 ? 340 : 240);
+    const punch = window.setTimeout(() => setShake(false), 180);
     const clearFx = window.setTimeout(() => {
       setParticles([]);
-      setBeams({ nonce: effect.nonce, blasts: [] });
-    }, 620);
+      setBeams([]);
+    }, 380);
     return () => {
       window.clearTimeout(punch);
       window.clearTimeout(clearFx);
@@ -110,9 +100,10 @@ export function BlastBoard({
     >
       {box > 0 && (
         <>
-          <AnimatePresence>
-            {cells.map(({ r, c, cube }) => (
-              <motion.button
+          {cells.map(({ r, c, cube }) => {
+            const picked = selected?.r === r && selected?.c === c;
+            return (
+              <button
                 key={cube.id}
                 type="button"
                 disabled={disabled}
@@ -138,27 +129,12 @@ export function BlastBoard({
                   }
                   onTap(r, c);
                 }}
-                className={`aw-slot ${selected?.r === r && selected?.c === c ? "is-picked" : ""}`}
-                style={{ width: cell, height: cell }}
-                initial={{ opacity: 0, scale: 0.4, x: c * cell, y: r * cell - cell * 4 }}
-                animate={{
-                  opacity: 1,
-                  scale: selected?.r === r && selected?.c === c ? 1.06 : 1,
-                  x: c * cell,
-                  y: r * cell,
+                className={`aw-slot ${picked ? "is-picked" : ""}`}
+                style={{
+                  width: cell,
+                  height: cell,
+                  transform: `translate3d(${c * cell}px, ${r * cell}px, 0) scale(${picked ? 1.06 : 1})`,
                 }}
-                exit={{
-                  opacity: 0,
-                  scale: 0.15,
-                  transition: { duration: 0.14 },
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 640,
-                  damping: 32,
-                  mass: 0.7,
-                }}
-                whileTap={{ scale: 0.92 }}
               >
                 <CubeFace
                   color={cube.color}
@@ -166,27 +142,27 @@ export function BlastBoard({
                   crate={cube.crate}
                   size={cell * 0.9}
                 />
-              </motion.button>
-            ))}
-          </AnimatePresence>
+              </button>
+            );
+          })}
 
           <div className="aw-fx">
-            {beams.blasts.map((b, i) => (
-              <BlastBeam key={`${beams.nonce}-${i}`} blast={b} cell={cell} n={n} />
+            {beams.map((b, i) => (
+              <BlastBeam key={`${effect?.nonce}-${i}`} blast={b} cell={cell} n={n} />
             ))}
-            <AnimatePresence>
-              {particles.map((p) => (
-                <motion.span
-                  key={p.id}
-                  className="aw-particle"
-                  style={{ background: p.color }}
-                  initial={{ x: p.x, y: p.y, opacity: 1, scale: 1 }}
-                  animate={{ x: p.x + p.dx, y: p.y + p.dy, opacity: 0, scale: 0.3 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                />
-              ))}
-            </AnimatePresence>
+            {particles.map((p) => (
+              <span
+                key={p.id}
+                className="aw-particle"
+                style={{
+                  background: p.color,
+                  left: p.x,
+                  top: p.y,
+                  ["--dx" as string]: `${p.dx}px`,
+                  ["--dy" as string]: `${p.dy}px`,
+                }}
+              />
+            ))}
           </div>
         </>
       )}
@@ -205,49 +181,33 @@ function BlastBeam({
 }) {
   if (blast.type === "rocketH") {
     return (
-      <motion.span
-        className="aw-beam"
+      <span
+        className="aw-beam aw-fx-fade"
         style={{ top: blast.r * cell + cell * 0.2, left: 0, height: cell * 0.6, width: n * cell }}
-        initial={{ opacity: 0.9, scaleX: 0 }}
-        animate={{ opacity: 0, scaleX: 1 }}
-        transition={{ duration: 0.4 }}
       />
     );
   }
   if (blast.type === "rocketV") {
     return (
-      <motion.span
-        className="aw-beam"
+      <span
+        className="aw-beam aw-fx-fade"
         style={{ left: blast.c * cell + cell * 0.2, top: 0, width: cell * 0.6, height: n * cell }}
-        initial={{ opacity: 0.9, scaleY: 0 }}
-        animate={{ opacity: 0, scaleY: 1 }}
-        transition={{ duration: 0.4 }}
       />
     );
   }
   if (blast.type === "bomb") {
     const d = cell * 5;
     return (
-      <motion.span
-        className="aw-boom"
+      <span
+        className="aw-boom aw-fx-fade"
         style={{
           left: blast.c * cell + cell / 2 - d / 2,
           top: blast.r * cell + cell / 2 - d / 2,
           width: d,
           height: d,
         }}
-        initial={{ opacity: 0.85, scale: 0.2 }}
-        animate={{ opacity: 0, scale: 1 }}
-        transition={{ duration: 0.4 }}
       />
     );
   }
-  return (
-    <motion.span
-      className="aw-disco-flash"
-      initial={{ opacity: 0.7 }}
-      animate={{ opacity: 0 }}
-      transition={{ duration: 0.45 }}
-    />
-  );
+  return <span className="aw-disco-flash aw-fx-fade" />;
 }

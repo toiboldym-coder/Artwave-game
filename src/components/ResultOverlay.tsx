@@ -60,7 +60,7 @@ export function ResultOverlay({
         exit={{ opacity: 0 }}
       >
         {win &&
-          Array.from({ length: 28 }).map((_, i) => (
+          Array.from({ length: 10 }).map((_, i) => (
             <motion.span
               key={i}
               className="aw-confetti"

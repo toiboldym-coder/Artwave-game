@@ -1,11 +1,12 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { Lightning } from "@phosphor-icons/react";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "../components/Avatar";
 import { BlastBoard, type BoardEffect } from "../components/BlastBoard";
 import { CubeFace } from "../components/Cube";
 import { ResultOverlay } from "../components/ResultOverlay";
-import { sfx, stopBed } from "../audio/sfx";
+import { duckBed, sfx } from "../audio/sfx";
+import { BoosterBar } from "../components/BoosterBar";
+import { boosterHintFor, heroById } from "../story/characters";
 import { adjacent, boosterSwap, createSwapGrid, swapCells } from "../game/swap";
 import { levelById } from "../game/levels";
 import { type Color, type Grid } from "../game/types";
@@ -13,7 +14,6 @@ import { CueGame } from "../minigames/CueGame";
 import { RideGame } from "../minigames/RideGame";
 import { WallGame } from "../minigames/WallGame";
 import type { SaveState } from "../state/store";
-import { heroById } from "../story/characters";
 import {
   COMBO_LINES,
   COMBO_QUIPS,
@@ -37,11 +37,11 @@ export function LevelScreen({
 }) {
   const level = levelById(levelId);
   if (level.kind === "ride")
-    return <RideGame level={level} save={save} onWin={onWin} onExit={onExit} />;
+    return <RideGame level={level} save={save} onWin={onWin} onExit={onExit} onSpendBooster={onSpendBooster} />;
   if (level.kind === "cue")
-    return <CueGame level={level} save={save} onWin={onWin} onExit={onExit} />;
+    return <CueGame level={level} save={save} onWin={onWin} onExit={onExit} onSpendBooster={onSpendBooster} />;
   if (level.kind === "wall")
-    return <WallGame level={level} save={save} onWin={onWin} onExit={onExit} />;
+    return <WallGame level={level} save={save} onWin={onWin} onExit={onExit} onSpendBooster={onSpendBooster} />;
   return (
     <SwapLevel
       levelId={levelId}
@@ -90,7 +90,7 @@ function SwapLevel({
     level.goals.every((g) => (prog[g.color] || 0) >= g.need);
 
   useEffect(() => {
-    stopBed();
+    duckBed();
   }, []);
 
   useEffect(() => {
@@ -242,57 +242,26 @@ function SwapLevel({
           selected={picked}
           impact={impact}
         />
-        <AnimatePresence>
-          {combo && (
-            <motion.div
-              key={combo}
-              className="aw-combo"
-              initial={{ scale: 0.4, opacity: 0, rotate: -6 }}
-              animate={{ scale: 1, opacity: 1, rotate: -3 }}
-              exit={{ scale: 1.3, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 14 }}
-            >
-              {combo}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {quip && (
-            <motion.div
-              key={quip}
-              className="aw-quip"
-              initial={{ opacity: 0, y: 16, scale: 0.92 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8 }}
-            >
-              <Avatar hero={hero} size={44} active float mood="talk" />
-              <p>
-                <b>{hero.name}</b>
-                {quip}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      </div>
+      <div className="aw-table-talk">
+        {combo && <div className="aw-combo">{combo}</div>}
+        {quip && (
+          <div className="aw-quip">
+            <Avatar hero={hero} size={40} float={false} />
+            <p>
+              <b>{hero.name}</b>
+              {quip}
+            </p>
+          </div>
+        )}
       </div>
 
-      <div className="aw-booster-bar">
-        <motion.button
-          whileTap={{ scale: 0.94 }}
-          className="aw-booster"
-          onClick={useBooster}
-          disabled={boosterCount <= 0}
-          style={{ ["--acc" as string]: hero.accentHex }}
-        >
-          <span className="aw-booster-icon">
-            <Lightning weight="fill" />
-          </span>
-          <span className="aw-booster-text">
-            <b>{hero.booster}</b>
-            <small>{hero.boosterHint}</small>
-          </span>
-          <span className="aw-booster-count">{boosterCount}</span>
-        </motion.button>
-      </div>
+      <BoosterBar
+        hero={hero}
+        hint={boosterHintFor(hero.id, "swap")}
+        count={boosterCount}
+        onUse={useBooster}
+      />
 
       {status !== "play" && (
         <ResultOverlay

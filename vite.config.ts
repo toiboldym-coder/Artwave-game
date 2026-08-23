@@ -12,7 +12,15 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "portraits/*.jpg"],
+      includeAssets: [
+        "icons/icon.svg",
+        "icons/icon-192.png",
+        "icons/icon-512.png",
+        "audio/menu.mp3",
+        "audio/bed-a.mp3",
+        "audio/bed-b.mp3",
+        "portraits/*.jpg",
+      ],
       manifest: {
         name: "Artwave",
         short_name: "Artwave",

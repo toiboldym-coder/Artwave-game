@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
-import { startBed, stopBed } from "../audio/sfx";
+import { startBed } from "../audio/sfx";
 import { motion } from "framer-motion";
 import { Avatar } from "../components/Avatar";
 import { Eyebrow, Pill } from "../components/Chrome";
-import { Bicycle, Camera, DeviceMobile, Lamp, Lightning, SquaresFour, Sun } from "@phosphor-icons/react";
+import { Camera, DeviceMobile, Lamp, Lightning, SquaresFour, Sun, Truck } from "@phosphor-icons/react";
 import { KIND_META, LEVELS } from "../game/levels";
 import { heroById } from "../story/characters";
 import { IDLE_QUIPS, randomLine } from "../story/script";
@@ -31,11 +31,14 @@ export function MapScreen({
 
   useEffect(() => {
     startBed();
-    return () => stopBed();
   }, []);
 
   return (
-    <div className="aw-screen aw-map">
+    <div
+      className={`aw-screen aw-map ${
+        save.completed >= 10 ? "is-act3" : save.completed >= 5 ? "is-act2" : save.completed >= 1 ? "is-act1" : ""
+      }`}
+    >
       <header className="aw-map-head">
         <button className="aw-map-hero" onClick={onReselect}>
           {hero && <Avatar hero={hero} size={52} active float={false} />}
@@ -76,10 +79,11 @@ export function MapScreen({
           const done = save.completed >= lvl.id;
           const isNext = lvl.id === nextId;
           const locked = lvl.id > nextId;
+          const best = save.bestStars[lvl.id] ?? 0;
           const kind = KIND_META[lvl.kind];
           const KindIcon =
             lvl.kind === "ride"
-              ? Bicycle
+              ? Truck
               : lvl.kind === "wall"
                 ? SquaresFour
                 : lvl.kind === "cue"
@@ -108,8 +112,15 @@ export function MapScreen({
                 <span className="aw-muted aw-small">
                   {kind.label}
                   {" · "}
-                  {locked ? "закрыто" : done ? "пройдено" : isNext ? "играть" : "открыто"}
+                  {locked ? "закрыто" : done ? (best === 3 ? "бис" : "пройдено") : isNext ? "играть" : "открыто"}
                 </span>
+                {best > 0 && (
+                  <span className="aw-node-stars" aria-label={`${best} из 3`}>
+                    {[1, 2, 3].map((n) => (
+                      <i key={n} className={n <= best ? "on" : ""} />
+                    ))}
+                  </span>
+                )}
               </span>
               {isNext && (
                 <motion.span

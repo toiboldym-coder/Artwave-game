@@ -7,7 +7,8 @@ import { InstallScreen } from "./screens/InstallScreen";
 import { LevelScreen } from "./screens/LevelScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { PolaroidScreen } from "./screens/PolaroidScreen";
-import { unlockAudio } from "./audio/sfx";
+import { SettingsButton, SettingsSheet } from "./components/SettingsSheet";
+import { startBed, unlockAudio } from "./audio/sfx";
 import { applyWin, loadSave, persist, type SaveState } from "./state/store";
 import { dialogueFor } from "./story/script";
 
@@ -16,20 +17,25 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>("boot");
   const [levelId, setLevelId] = useState(1);
   const [highlight, setHighlight] = useState<string | null>(null);
+  const [settings, setSettings] = useState(false);
 
   useEffect(() => {
     persist(save);
   }, [save]);
 
   useEffect(() => {
-    const unlock = () => unlockAudio();
+    const unlock = () => {
+      unlockAudio();
+      startBed();
+    };
     window.addEventListener("pointerdown", unlock, { once: true });
     return () => window.removeEventListener("pointerdown", unlock);
   }, []);
 
   const goLevel = (id: number) => {
     setLevelId(id);
-    if (save.hero && dialogueFor(id, save.hero)) setScreen("dialogue");
+    if (save.completed >= id) setScreen("level");
+    else if (save.hero && dialogueFor(id, save.hero)) setScreen("dialogue");
     else setScreen("level");
   };
 
@@ -59,6 +65,8 @@ export default function App() {
   return (
     <div className="app-shell">
       <div className="grain" />
+      <SettingsButton onOpen={() => setSettings(true)} />
+      <SettingsSheet open={settings} onClose={() => setSettings(false)} />
       {screen === "boot" && (
         <BootScreen
           hasHero={!!save.hero}
