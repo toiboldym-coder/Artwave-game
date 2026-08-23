@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { sfx, stopBed } from "../audio/sfx";
 import { Avatar } from "../components/Avatar";
 import { ResultOverlay } from "../components/ResultOverlay";
 import type { LevelDef } from "../game/types";
@@ -49,6 +50,10 @@ export function RideGame({
   const shift = (dir: -1 | 1) => {
     setLane((l) => Math.max(0, Math.min(2, l + dir)));
   };
+
+  useEffect(() => {
+    stopBed();
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -104,9 +109,11 @@ export function RideGame({
           if (it.kind === "cable") {
             gotRef.current += 1;
             setGot(gotRef.current);
+            sfx.collect();
           } else {
             hitsRef.current += 1;
             setHits(hitsRef.current);
+            sfx.hit();
           }
           continue;
         }
@@ -206,6 +213,8 @@ export function RideGame({
         <ResultOverlay
           win={status === "win"}
           stars={stars}
+          hero={hero}
+          levelTitle={level.title}
           heroLine={
             status === "win"
               ? randomLine(WIN_LINES[hero.id], `win-${hero.id}`)

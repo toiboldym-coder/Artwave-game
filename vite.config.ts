@@ -12,7 +12,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icons/icon.svg", "portraits/*.jpg"],
+      includeAssets: ["icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "portraits/*.jpg"],
       manifest: {
         name: "Artwave",
         short_name: "Artwave",
@@ -24,10 +24,22 @@ export default defineConfig({
         start_url: base,
         icons: [
           {
+            src: "icons/icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: "icons/icon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
             src: "icons/icon.svg",
             sizes: "any",
             type: "image/svg+xml",
-            purpose: "any maskable",
+            purpose: "any",
           },
         ],
       },

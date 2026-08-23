@@ -26,12 +26,14 @@ export function BlastBoard({
   effect,
   disabled,
   selected = null,
+  impact = 0,
 }: {
   grid: Grid;
   onTap: (r: number, c: number) => void;
   effect: BoardEffect | null;
   disabled?: boolean;
   selected?: { r: number; c: number } | null;
+  impact?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState(0);
@@ -58,38 +60,37 @@ export function BlastBoard({
 
   useEffect(() => {
     if (!effect || cell === 0) return;
-    const sample = effect.cleared.slice(0, 44);
+    const sample = effect.cleared.slice(0, impact >= 3 ? 28 : 18);
+    const bits = impact >= 3 ? 4 : 3;
     const next: Particle[] = [];
     sample.forEach((cc, idx) => {
       const cx = cc.c * cell + cell / 2;
       const cy = cc.r * cell + cell / 2;
-      const bits = 2;
       for (let i = 0; i < bits; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const dist = cell * (0.5 + Math.random());
+        const dist = cell * (0.55 + Math.random() * 1.1);
         next.push({
           id: `${effect.nonce}-${idx}-${i}`,
           x: cx,
           y: cy,
           dx: Math.cos(ang) * dist,
-          dy: Math.sin(ang) * dist - cell * 0.3,
+          dy: Math.sin(ang) * dist - cell * 0.35,
           color: COLOR_META[cc.color].glow,
         });
       }
     });
     setParticles(next);
     setBeams({ nonce: effect.nonce, blasts: effect.blasts });
-    if (effect.blasts.length) {
-      setShake(true);
-      const t = setTimeout(() => setShake(false), 260);
-      const t2 = setTimeout(() => setBeams({ nonce: effect.nonce, blasts: [] }), 420);
-      return () => {
-        clearTimeout(t);
-        clearTimeout(t2);
-      };
-    }
-    const t = setTimeout(() => setParticles([]), 600);
-    return () => clearTimeout(t);
+    setShake(true);
+    const punch = window.setTimeout(() => setShake(false), impact >= 3 ? 340 : 240);
+    const clearFx = window.setTimeout(() => {
+      setParticles([]);
+      setBeams({ nonce: effect.nonce, blasts: [] });
+    }, 620);
+    return () => {
+      window.clearTimeout(punch);
+      window.clearTimeout(clearFx);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effect?.nonce]);
 
@@ -104,7 +105,7 @@ export function BlastBoard({
   return (
     <div
       ref={ref}
-      className={`aw-board ${shake ? "aw-shake" : ""}`}
+      className={`aw-board ${shake ? (impact >= 3 ? "aw-shake-hard" : "aw-shake") : ""}`}
       style={{ ["--n" as string]: n }}
     >
       {box > 0 && (
@@ -140,15 +141,24 @@ export function BlastBoard({
                 className={`aw-slot ${selected?.r === r && selected?.c === c ? "is-picked" : ""}`}
                 style={{ width: cell, height: cell }}
                 initial={{ opacity: 0, scale: 0.4, x: c * cell, y: r * cell - cell * 4 }}
-                animate={{ opacity: 1, scale: 1, x: c * cell, y: r * cell }}
-                exit={{ opacity: 0, scale: 0, transition: { duration: 0.16 } }}
+                animate={{
+                  opacity: 1,
+                  scale: selected?.r === r && selected?.c === c ? 1.06 : 1,
+                  x: c * cell,
+                  y: r * cell,
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.15,
+                  transition: { duration: 0.14 },
+                }}
                 transition={{
                   type: "spring",
                   stiffness: 640,
-                  damping: 30,
+                  damping: 32,
                   mass: 0.7,
                 }}
-                whileTap={{ scale: 0.86 }}
+                whileTap={{ scale: 0.92 }}
               >
                 <CubeFace
                   color={cube.color}

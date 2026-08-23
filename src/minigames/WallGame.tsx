@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { sfx, stopBed } from "../audio/sfx";
 import { ResultOverlay } from "../components/ResultOverlay";
 import { COLOR_META, type Color } from "../game/types";
 import type { LevelDef } from "../game/types";
@@ -33,6 +34,10 @@ export function WallGame({
 
   const pickNext = () => PALETTE[Math.floor(Math.random() * PALETTE.length)];
 
+  useEffect(() => {
+    stopBed();
+  }, []);
+
   const drop = (col: number) => {
     if (status !== "play") return;
     setGrid((prev) => {
@@ -49,6 +54,7 @@ export function WallGame({
         return prev;
       }
       copy[row][col] = next;
+      sfx.tap();
       let rowsDone = 0;
       for (const line of copy) {
         if (line.every((cell) => cell !== null)) rowsDone += 1;
@@ -150,6 +156,8 @@ export function WallGame({
         <ResultOverlay
           win={status === "win"}
           stars={stars}
+          hero={hero}
+          levelTitle={level.title}
           heroLine={
             status === "win"
               ? randomLine(WIN_LINES[hero.id], `win-${hero.id}`)

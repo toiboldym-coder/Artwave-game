@@ -5,7 +5,8 @@ import { Avatar } from "../components/Avatar";
 import { BlastBoard, type BoardEffect } from "../components/BlastBoard";
 import { CubeFace } from "../components/Cube";
 import { ResultOverlay } from "../components/ResultOverlay";
-import { boosterSwap, createSwapGrid, swapCells } from "../game/swap";
+import { sfx, stopBed } from "../audio/sfx";
+import { adjacent, boosterSwap, createSwapGrid, swapCells } from "../game/swap";
 import { levelById } from "../game/levels";
 import { type Color, type Grid } from "../game/types";
 import { CueGame } from "../minigames/CueGame";
@@ -79,6 +80,7 @@ function SwapLevel({
   const [combo, setCombo] = useState<string | null>(null);
   const [quip, setQuip] = useState<string | null>(null);
   const [picked, setPicked] = useState<{ r: number; c: number } | null>(null);
+  const [impact, setImpact] = useState(1);
   const nonce = useRef(0);
   const lock = useRef(false);
   const hideCombo = useRef(0);
@@ -86,6 +88,10 @@ function SwapLevel({
 
   const isWin = (prog: Partial<Record<Color, number>>) =>
     level.goals.every((g) => (prog[g.color] || 0) >= g.need);
+
+  useEffect(() => {
+    stopBed();
+  }, []);
 
   useEffect(() => {
     if (status !== "play") return;
@@ -113,8 +119,13 @@ function SwapLevel({
     costMove: boolean,
   ) => {
     nonce.current += 1;
+    const hit = res.blasts.length ? 3 : res.combo >= 3 || res.cleared.length >= 8 ? 3 : res.combo >= 2 ? 2 : 1;
+    setImpact(hit);
     setGrid(res.grid);
     setEffect({ nonce: nonce.current, cleared: res.cleared, blasts: res.blasts });
+    sfx.match(hit);
+    if (res.combo >= 2) sfx.cascade(res.combo);
+    if (res.blasts.length) sfx.blast();
     if (res.combo >= 2 || res.blasts.length || res.cleared.length >= 6) flashCombo();
     setProgress((prev) => {
       const np = { ...prev };
@@ -129,6 +140,7 @@ function SwapLevel({
     if (status !== "play" || lock.current) return;
     if (!grid[r]?.[c]) return;
     if (!picked) {
+      sfx.tap();
       setPicked({ r, c });
       return;
     }
@@ -139,6 +151,8 @@ function SwapLevel({
     const res = swapCells(grid, picked, { r, c }, level.colors, !!level.specials);
     setPicked(null);
     if (!res) {
+      if (adjacent(picked, { r, c })) sfx.miss();
+      else sfx.tap();
       setPicked({ r, c });
       return;
     }
@@ -151,6 +165,7 @@ function SwapLevel({
     if (status !== "play" || boosterCount <= 0 || !save.hero) return;
     if (hero.id === "adil") {
       setMoves((m) => m + 5);
+      sfx.booster();
       flashCombo("+5 ходов из воздуха!");
       onSpendBooster(save.hero);
       return;
@@ -160,6 +175,7 @@ function SwapLevel({
     lock.current = true;
     window.setTimeout(() => (lock.current = false), 160);
     commit(res, false);
+    sfx.booster();
     flashCombo(hero.id === "aidar" ? "СВЕТ ПОШЁЛ!" : "ЭКРАН СОБРАН!");
     onSpendBooster(save.hero);
   };
@@ -224,6 +240,7 @@ function SwapLevel({
           effect={effect}
           disabled={status !== "play"}
           selected={picked}
+          impact={impact}
         />
         <AnimatePresence>
           {combo && (
@@ -281,6 +298,8 @@ function SwapLevel({
         <ResultOverlay
           win={status === "win"}
           stars={stars}
+          hero={hero}
+          levelTitle={level.title}
           heroLine={
             status === "win"
               ? randomLine(WIN_LINES[hero.id], `win-${hero.id}`)

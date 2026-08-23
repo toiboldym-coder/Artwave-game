@@ -168,41 +168,15 @@ button {
   height: 100%;
   object-fit: cover;
 }
-.aw-blink {
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  top: 38%;
-  height: 10%;
-  background: #1a1028;
-  border-radius: 2px;
-  transform: scaleY(0);
-  transform-origin: center;
-  animation: aw-blink 3.8s steps(2, jump-none) infinite;
-  pointer-events: none;
-}
-@keyframes aw-blink {
-  0%, 92%, 100% { transform: scaleY(0); }
-  94%, 96% { transform: scaleY(1); }
-}
-.aw-talk {
-  position: absolute;
-  left: 38%;
-  width: 24%;
-  bottom: 16%;
-  height: 8%;
-  border-radius: 40%;
-  background: rgba(20, 8, 32, 0.45);
-  animation: aw-talk 0.28s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes aw-talk {
-  50% { transform: scaleY(0.35); }
-}
 .aw-slot.is-picked {
   z-index: 3;
   filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 16px #ffc531);
-  transform: scale(1.06);
+}
+.aw-slot.is-picked .aw-gem {
+  animation: aw-gem-pulse 0.9s ease-in-out infinite;
+}
+@keyframes aw-gem-pulse {
+  50% { transform: scale(1.08); }
 }
 .aw-avatar-shine {
   position: absolute;
@@ -378,12 +352,22 @@ button {
 .aw-shake {
   animation: aw-shake 0.26s ease;
 }
+.aw-shake-hard {
+  animation: aw-shake-hard 0.34s ease;
+}
 @keyframes aw-shake {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-4px, 2px); }
-  40% { transform: translate(4px, -3px); }
-  60% { transform: translate(-3px, -2px); }
-  80% { transform: translate(3px, 2px); }
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(-4px, 2px) scale(1.015); }
+  40% { transform: translate(4px, -3px) scale(1.02); }
+  60% { transform: translate(-3px, -2px) scale(1.01); }
+  80% { transform: translate(3px, 2px) scale(1.015); }
+}
+@keyframes aw-shake-hard {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  15% { transform: translate(-7px, 3px) scale(1.03); }
+  35% { transform: translate(7px, -4px) scale(1.02); }
+  55% { transform: translate(-5px, -3px) scale(1.04); }
+  75% { transform: translate(5px, 3px) scale(1.01); }
 }
 .aw-slot {
   position: absolute;
@@ -545,9 +529,9 @@ button {
 .aw-select-hero {
   --acc: #ffc531;
   display: flex;
-  gap: 16px;
-  align-items: center;
-  padding: 18px;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
   border-radius: 22px;
   background: #fff;
   border: 3px solid color-mix(in srgb, var(--acc) 70%, white);
@@ -996,6 +980,44 @@ button {
   flex-direction: column;
   gap: 10px;
 }
+.aw-share-face {
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid var(--acc);
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--acc) 40%, #2a1848);
+}
+.aw-share-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.aw-share-who {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #2a1848;
+}
+.aw-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 2px solid #2a1848;
+  background: #fff;
+  color: #2a1848;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+}
+.aw-share-btn:disabled {
+  opacity: 0.6;
+}
 
 /* ---------- polaroids ---------- */
 .aw-poly-grid {
@@ -1062,6 +1084,20 @@ button {
   border-radius: 18px;
   background: #fff;
   border: 2px solid rgba(42, 24, 72, 0.08);
+}
+.aw-install-card + .aw-install-card {
+  margin-top: 12px;
+}
+.aw-install-cta {
+  margin-top: 14px;
+}
+.aw-install-note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--mute);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .aw-crate-body {

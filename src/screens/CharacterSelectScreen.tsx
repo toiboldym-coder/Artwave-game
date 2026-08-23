@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Avatar } from "../components/Avatar";
 import { BigButton, Eyebrow } from "../components/Chrome";
 import type { HeroId } from "../game/types";
+import { sfx } from "../audio/sfx";
 import { HEROES } from "../story/characters";
 import { useState } from "react";
 
@@ -18,9 +19,9 @@ export function CharacterSelectScreen({
   return (
     <div className="aw-screen aw-select">
       <div className="aw-select-head">
-        <Eyebrow>выбери, за кого играть</Eyebrow>
-        <h2 className="aw-h2">Твой герой в Artwave</h2>
-        <p className="aw-muted">История пойдёт от его лица. Со всеми шутками.</p>
+        <Eyebrow>это вы</Eyebrow>
+        <h2 className="aw-h2">За кого играешь</h2>
+        <p className="aw-muted">История с его лица. Двое других не заткнутся.</p>
       </div>
 
       <motion.div
@@ -30,7 +31,7 @@ export function CharacterSelectScreen({
         className="aw-select-hero"
         style={{ ["--acc" as string]: hero.accentHex }}
       >
-        <Avatar hero={hero} size={128} active />
+        <Avatar hero={hero} size={96} active />
         <div className="aw-select-info">
           <h3 className="aw-select-name">
             {hero.name} <span className="mono aw-select-latin">{hero.latin}</span>
@@ -51,7 +52,10 @@ export function CharacterSelectScreen({
           <motion.button
             key={h.id}
             whileTap={{ scale: 0.92 }}
-            onClick={() => setSel(h.id)}
+            onClick={() => {
+              sfx.ui();
+              setSel(h.id);
+            }}
             className={`aw-select-thumb ${sel === h.id ? "is-active" : ""}`}
             style={{ ["--acc" as string]: h.accentHex }}
           >
@@ -62,7 +66,13 @@ export function CharacterSelectScreen({
       </div>
 
       <div className="aw-select-cta">
-        <BigButton onClick={() => onPick(sel)} color={hero.accentHex}>
+        <BigButton
+          onClick={() => {
+            sfx.ui();
+            onPick(sel);
+          }}
+          color={hero.accentHex}
+        >
           Играть за {hero.name}
         </BigButton>
       </div>

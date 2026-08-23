@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { startBed, stopBed } from "../audio/sfx";
 import { motion } from "framer-motion";
 import { Avatar } from "../components/Avatar";
 import { Eyebrow, Pill } from "../components/Chrome";
@@ -28,6 +29,11 @@ export function MapScreen({
     [hero],
   );
 
+  useEffect(() => {
+    startBed();
+    return () => stopBed();
+  }, []);
+
   return (
     <div className="aw-screen aw-map">
       <header className="aw-map-head">
@@ -53,7 +59,7 @@ export function MapScreen({
           <Camera weight="fill" /> Полароиды
         </Pill>
         <Pill onClick={onInstall}>
-          <DeviceMobile weight="fill" /> Установить
+          <DeviceMobile weight="fill" /> На телефон
         </Pill>
       </div>
 

@@ -3,11 +3,18 @@ import { Avatar } from "../components/Avatar";
 import { BigButton, Eyebrow } from "../components/Chrome";
 import { HEROES } from "../story/characters";
 import { CubeFace } from "../components/Cube";
+import { startBed, unlockAudio } from "../audio/sfx";
 import { type Color } from "../game/types";
 
 const floatColors: Color[] = ["red", "amber", "teal", "violet", "lime", "amber"];
 
-export function BootScreen({ onStart }: { onStart: () => void }) {
+export function BootScreen({
+  onStart,
+  hasHero = false,
+}: {
+  onStart: () => void;
+  hasHero?: boolean;
+}) {
   return (
     <div className="aw-screen aw-boot">
       <div className="aw-boot-bg">
@@ -28,7 +35,7 @@ export function BootScreen({ onStart }: { onStart: () => void }) {
       </div>
 
       <div className="aw-boot-top">
-        <Eyebrow>прокатная компания · шоу под ключ</Eyebrow>
+        <Eyebrow>три человека · один склад</Eyebrow>
         <motion.h1
           className="aw-logo"
           initial={{ scale: 0.7, opacity: 0 }}
@@ -38,8 +45,7 @@ export function BootScreen({ onStart }: { onStart: () => void }) {
           ARTWAVE
         </motion.h1>
         <p className="aw-boot-sub">
-          Три в ряд как у PixiJS: меняй соседей, лови каскад.
-          Плюс велик, свет и LED. Кабель всё ещё короче на три метра.
+          Выбери себя. Остальные двое будут комментировать.
         </p>
       </div>
 
@@ -59,8 +65,15 @@ export function BootScreen({ onStart }: { onStart: () => void }) {
       </div>
 
       <div className="aw-boot-cta">
-        <BigButton onClick={onStart} color="#FFC531">
-          Войти на склад
+        <BigButton
+          onClick={() => {
+            unlockAudio();
+            startBed();
+            onStart();
+          }}
+          color="#FFC531"
+        >
+          {hasHero ? "На склад" : "Выбрать себя"}
         </BigButton>
       </div>
     </div>

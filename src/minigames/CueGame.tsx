@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { sfx, stopBed } from "../audio/sfx";
 import { ResultOverlay } from "../components/ResultOverlay";
 import type { LevelDef } from "../game/types";
 import { heroById } from "../story/characters";
@@ -41,6 +42,10 @@ export function CueGame({
 
   statusRef.current = status;
 
+  useEffect(() => {
+    stopBed();
+  }, []);
+
   const strike = (col: number) => {
     if (statusRef.current !== "play") return;
     const zone = notesRef.current.find((n) => n.col === col && n.y > 0.7 && n.y < 0.92);
@@ -49,6 +54,7 @@ export function CueGame({
     if (zone) {
       notesRef.current = notesRef.current.filter((n) => n.id !== zone.id);
       setNotes(notesRef.current);
+      sfx.collect();
       setHits((h) => h + 1);
       if (Math.random() < 0.35) {
         const joke = randomLine(COMBO_QUIPS[hero.id], `quip-${hero.id}`);
@@ -60,6 +66,7 @@ export function CueGame({
         );
       }
     } else {
+      sfx.miss();
       setMisses((m) => m + 1);
     }
   };
@@ -171,6 +178,8 @@ export function CueGame({
         <ResultOverlay
           win={status === "win"}
           stars={stars}
+          hero={hero}
+          levelTitle={level.title}
           heroLine={
             status === "win"
               ? randomLine(WIN_LINES[hero.id], `win-${hero.id}`)

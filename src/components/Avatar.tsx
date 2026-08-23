@@ -67,8 +67,6 @@ export function Avatar({
           className="aw-avatar-shine"
           style={{ background: `radial-gradient(60% 40% at 30% 20%, #ffffff55, transparent 70%)` }}
         />
-        <span className="aw-blink" />
-        {talking && <span className="aw-talk" />}
       </div>
 
       {active && (

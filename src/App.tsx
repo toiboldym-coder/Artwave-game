@@ -7,6 +7,7 @@ import { InstallScreen } from "./screens/InstallScreen";
 import { LevelScreen } from "./screens/LevelScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { PolaroidScreen } from "./screens/PolaroidScreen";
+import { unlockAudio } from "./audio/sfx";
 import { applyWin, loadSave, persist, type SaveState } from "./state/store";
 import { dialogueFor } from "./story/script";
 
@@ -19,6 +20,12 @@ export default function App() {
   useEffect(() => {
     persist(save);
   }, [save]);
+
+  useEffect(() => {
+    const unlock = () => unlockAudio();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, []);
 
   const goLevel = (id: number) => {
     setLevelId(id);
@@ -53,7 +60,10 @@ export default function App() {
     <div className="app-shell">
       <div className="grain" />
       {screen === "boot" && (
-        <BootScreen onStart={() => setScreen(save.hero ? "map" : "select")} />
+        <BootScreen
+          hasHero={!!save.hero}
+          onStart={() => setScreen(save.hero ? "map" : "select")}
+        />
       )}
       {screen === "select" && (
         <CharacterSelectScreen current={save.hero} onPick={pickHero} />
