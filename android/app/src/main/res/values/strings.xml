@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Artwave</string>
+    <string name="title_activity_main">Artwave</string>
+    <string name="package_name">kz.artwave.game</string>
+    <string name="custom_url_scheme">kz.artwave.game</string>
+</resources>
